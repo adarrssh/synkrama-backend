@@ -2,7 +2,7 @@ const Book = require("../models/booksModel");
 
 const isValidYear = (year) => {
   const numString = year.toString();
-  return /^\d{4}$/.test(numString) && !/^0/.test(numString);
+  return numString.length == 4 && /^[1-9]\d{3}$/.test(numString);
 };
 
 module.exports.addNewBook = async (req, res) => {
@@ -17,7 +17,13 @@ module.exports.addNewBook = async (req, res) => {
       genre,
     });
 
-    if (!title || !author || !isValidYear(year) || !genre) {
+    if(!isValidYear(year)){
+      return res
+      .status(400)
+      .json({ message: "Year should be in YYYY format" });
+    }
+    
+    if (!title || !author || !genre) {
       return res
         .status(400)
         .json({ message: "Credentials missing or wrong format" });
@@ -61,7 +67,13 @@ module.exports.updateBookDetails = async (req, res) => {
     const { title, author, year, genre } = req.body;
 
 
-    if (!title || !author || !isValidYear(year) || !genre) {
+    if(!isValidYear(year)){
+      return res
+      .status(400)
+      .json({ message: "Year should be in YYYY format" });
+    }
+
+    if (!title || !author  || !genre) {
       return res
         .status(400)
         .json({ message: "Credentials missing of wrong format" });
