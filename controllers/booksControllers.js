@@ -1,5 +1,10 @@
 const Book = require("../models/booksModel");
 
+const isValidYear = (year) => {
+  const numString = year.toString();
+  return /^\d{4}$/.test(numString) && !/^0/.test(numString);
+};
+
 module.exports.addNewBook = async (req, res) => {
   try {
     const { title, author, year, genre } = req.body;
@@ -11,8 +16,16 @@ module.exports.addNewBook = async (req, res) => {
       genre,
     });
 
-    const newBook = await book.save();
-    res.status(201).json({ message: "Book Added sucessfully", data: newBook });
+    if (!title || !author || !isValidYear(year) || !genre) {
+      return res
+        .status(400)
+        .json({ message: "Credentials missing of wrong format" });
+    }
+
+    await book.save();
+    const getBooks = await Book.find();
+
+    res.status(201).json({ message: "Book Added sucessfully", data: getBooks });
   } catch (error) {
     console.error(error);
     res.status(400).json({ message: error.message });
@@ -46,7 +59,8 @@ module.exports.updateBookDetails = async (req, res) => {
 
     const { title, author, year, genre } = req.body;
 
-    if (!title || !author || !year || !genre) {
+
+    if (!title || !author || !isValidYear(year) || !genre) {
       return res
         .status(400)
         .json({ message: "Credentials missing of wrong format" });
@@ -65,7 +79,6 @@ module.exports.updateBookDetails = async (req, res) => {
 module.exports.deleteBook = async (req, res) => {
   try {
     const bookId = req.params.id;
-
     const bookRes = await Book.deleteOne({ _id: bookId });
 
     if (!bookRes) {
