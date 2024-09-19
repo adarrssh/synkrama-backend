@@ -7,6 +7,7 @@ const isValidYear = (year) => {
 
 module.exports.addNewBook = async (req, res) => {
   try {
+
     const { title, author, year, genre } = req.body;
 
     const book = new Book({
@@ -19,7 +20,7 @@ module.exports.addNewBook = async (req, res) => {
     if (!title || !author || !isValidYear(year) || !genre) {
       return res
         .status(400)
-        .json({ message: "Credentials missing of wrong format" });
+        .json({ message: "Credentials missing or wrong format" });
     }
 
     await book.save();
